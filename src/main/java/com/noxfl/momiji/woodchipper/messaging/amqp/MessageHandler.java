@@ -2,37 +2,24 @@ package com.noxfl.momiji.woodchipper.messaging.amqp;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.noxfl.momiji.woodchipper.model.schema.message.SiteContentType;
-import com.noxfl.momiji.woodchipper.service.productlist.SiteCrawlerFactory;
-import com.noxfl.momiji.woodchipper.model.schema.message.ContentType;
-import com.noxfl.momiji.woodchipper.model.schema.message.Job;
-import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
-import com.noxfl.momiji.woodchipper.model.schema.message.PageType;
-import com.noxfl.momiji.woodchipper.util.HashUtils;
+import com.noxfl.momiji.woodchipper.model.schema.message.*;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
  * @author Fernando Nathanael
  *
  */
-@Component
-public class MessageHandler {
+public abstract class MessageHandler {
 
-    private SiteCrawlerFactory siteCrawlerFactory;
-
-    @Autowired
-    public void setSiteCrawlerFactory(SiteCrawlerFactory siteCrawlerFactory) {
-        this.siteCrawlerFactory = siteCrawlerFactory;
-    }
-
-    private SiteContentType getSiteContentType(String siteName, PageType pageType, ContentType contentType) {
+    protected SiteContentType getSiteContentType(String siteName, PageType pageType, ContentType contentType) {
         // WARNING: Naming order is crucial.
         // The naming in this app is: siteName + pageType + contentType.
         String siteContentTypeString = Arrays.stream(new String[] { siteName, pageType.toString(), contentType.toString() })
@@ -42,7 +29,15 @@ public class MessageHandler {
         return SiteContentType.valueOf(siteContentTypeString);
     }
 
-    public void handle(String message) throws IOException, URISyntaxException {
+    protected String getSiteContentTypeAsString(String siteName, PageType pageType, ContentType contentType) {
+        // WARNING: Naming order is crucial.
+        // The naming in this app is: siteName + pageType + contentType.
+        return Arrays.stream(new String[] { siteName, pageType.toString(), contentType.toString() })
+                .map(String::toUpperCase)
+                .collect(Collectors.joining("_"));
+    }
+
+    public void handle(String message) throws IOException, URISyntaxException, NoSuchFieldException, ExecutionException, InterruptedException, ParseException {
 
         ObjectMapper objectMapper = new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -53,18 +48,21 @@ public class MessageHandler {
 
         System.out.println("Received job: " + momijiMessage.getJob().getName());
 
-        SiteContentType pageType = getSiteContentType(
+        String pageType = getSiteContentTypeAsString(
                 job.getSite().getName(),
                 job.getPageType(),
                 job.getContentType()
         );
 
-        String jobIdRaw = String.format("%s-%s%s", pageType, job.getName());
+        String jobIdRaw = String.format("%s-%s-%s", pageType, job.getName(), Instant.now());
         String jobIdHash = DigestUtils.md5Hex(jobIdRaw).toUpperCase();
 
         momijiMessage.getJob().setJobId(jobIdHash);
 
-        siteCrawlerFactory.getSiteCrawler(pageType).fetchProducts(momijiMessage);
+        doWork(momijiMessage);
+
     }
+
+    protected abstract void doWork(MomijiMessage momijiMessage) throws IOException, URISyntaxException, NoSuchFieldException, ExecutionException, InterruptedException, ParseException;
 
 }

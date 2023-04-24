@@ -4,6 +4,7 @@ import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import org.json.JSONObject;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,8 +14,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageSender {
 
-    public static final String QUEUE_NAME_OUTPUT_PRODUCT_DETAIL = "leaf-rake";
-    public static final String QUEUE_NAME_OUTPUT_EXTRACT = "wood-chipper";
+    @Value("${spring.rabbitmq.queue.product.name}")
+    private String queueNameProduct;
+
+    @Value("${spring.rabbitmq.queue.extractor.name}")
+    private String queueNameExtractor;
 
     private RabbitTemplate rabbitTemplate;
 
@@ -27,8 +31,10 @@ public class MessageSender {
 
     public void send(MomijiMessage momijiMessage) {
         String queueName = momijiMessage.getJob().isScrapeDetail()
-                ? QUEUE_NAME_OUTPUT_PRODUCT_DETAIL
-                : QUEUE_NAME_OUTPUT_EXTRACT;
+                ? queueNameProduct
+                : queueNameExtractor;
+
+        System.out.println("Preparing to send: " + momijiMessage.getJob().getContent().getUrl());
 
         this.send(new JSONObject(momijiMessage).toString(), queueName);
     }

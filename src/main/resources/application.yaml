@@ -1,0 +1,15 @@
+spring:
+ rabbitmq:
+  host: localhost
+  username: rmq_admin
+  password: rmq_admin
+  port: 5672
+  queue:
+    input:
+      name: default
+    product-list:
+      name: product-list
+    product:
+      name: product
+    extractor:
+      name: extractor
