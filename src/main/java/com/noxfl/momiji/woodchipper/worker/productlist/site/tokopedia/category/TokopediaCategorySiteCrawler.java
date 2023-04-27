@@ -5,10 +5,10 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.noxfl.momiji.woodchipper.connection.ApiFetcher;
 import com.noxfl.momiji.woodchipper.model.schema.message.*;
+import com.noxfl.momiji.woodchipper.util.UriUtils;
 import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.TokopediaSiteCrawler;
 import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.graphql.schema.CategoryDetailQuery;
 import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.graphql.schema.SearchProductQuery;
-import com.noxfl.momiji.woodchipper.util.UriUtils;
 import net.minidev.json.JSONStyle;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +27,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
-
-
 
     public TokopediaCategorySiteCrawler(ApiFetcher apiFetcher) {
         super(apiFetcher);
@@ -46,7 +43,7 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
                         .read(splitPath, net.minidev.json.JSONObject[].class);
 
         return Arrays.stream(contents)
-                .map(json -> json.toJSONString(JSONStyle.MAX_COMPRESS))
+                .map(json -> json.toJSONString(JSONStyle.LT_COMPRESS))
                 .toList();
     }
 
@@ -57,35 +54,45 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
      * @param page
      * @return GraphQL Query
      */
-    private String buildVariablesParam(String url, int page) throws IOException, URISyntaxException {
-        int rows = 60;
-        int start = 61;
-
-        String categoryIdentifier = buildCategoryIdentifier(url);
-        int categoryId = getCategoryId(categoryIdentifier);
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("page", String.valueOf(page));
-        params.put("rows", String.valueOf(rows));
-        params.put("source", "directory");
-        params.put("sc", String.valueOf(categoryId));
-        params.put("identifier", categoryIdentifier);
-        params.put("start", String.valueOf(start));
-        params.put("st", "product");
-        params.put("device", "desktop");
-        params.put("safe_search", "false");
-        params.put("related", "true");
-        params.put("ob", "");
-
-        String output = buildParams(params);
-
-        return output.startsWith("?") ? output.substring(1, output.length()) : output;
-    }
+//    private String buildVariablesParam(String url, int page) throws IOException, URISyntaxException {
+//        String categoryIdentifier = buildCategoryIdentifier(url);
+//        int categoryId = getCategoryId(categoryIdentifier);
+//
+////        String output = String.format(paramsTemplate, page, categoryIdentifier, categoryId);
+//
+////        HashMap<String, String> params = new HashMap<>();
+////        params.put("page", String.valueOf(page));
+////        params.put("rows", String.valueOf(rows));
+////        params.put("source", "directory");
+////        params.put("sc", String.valueOf(categoryId));
+////        params.put("identifier", categoryIdentifier);
+////        params.put("start", String.valueOf(start));
+////        params.put("st", "product");
+////        params.put("device", "desktop");
+////        params.put("safe_search", "false");
+////        params.put("related", "true");
+////        params.put("ob", "");
+////
+////        String output = buildParams(params);
+//
+//        System.out.println(output);
+//
+//        return output.startsWith("?") ? output.substring(1, output.length()) : output;
+//    }
 
     private JSONObject buildPayload(Job job, int page) throws IOException, URISyntaxException {
+
+        String categoryIdentifier = buildCategoryIdentifier(job.getCategory().getUrl());
+        int categoryId = getCategoryId(categoryIdentifier);
+        int start = (60 * page) + 1;
+
+        String params = String
+                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=60&start=%s&source=directory&device=desktop" +
+                        "&page=%s&related=true&st=product&safe_search=false",
+                        page, categoryIdentifier, categoryId, start, page);
+
         JSONObject gqlQueryParams = new JSONObject();
-        gqlQueryParams.put("params", buildVariablesParam(job.getCategory().getUrl(), page));
-//            gqlQueryParams.put("adParams", buildVariablesAdParam(i));
+        gqlQueryParams.put("params", params);
 
         JSONObject payload = new JSONObject();
         payload.put("operationName", SearchProductQuery.OPERATION_NAME);
@@ -125,13 +132,12 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
 
             url = UriUtils.clearParameter(url).toString();
 
-            Content content = momijiMessage.getJob().getContent();
+            Content content = copyContent(momijiMessage);
 
             content.setUrl(url);
             content.setProduct(card);
 
             output.add(content);
-
         }
 
         return output;

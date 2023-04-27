@@ -53,6 +53,14 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
 
     protected abstract List<Content> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException;
 
+    protected Content copyContent(MomijiMessage momijiMessage) {
+        Content content = new Content();
+
+        content.setExtras(momijiMessage.getJob().getContent().getExtras());
+
+        return content;
+    }
+
     @Override
     public List<Content> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
 

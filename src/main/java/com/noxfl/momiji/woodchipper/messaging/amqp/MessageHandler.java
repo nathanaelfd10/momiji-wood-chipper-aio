@@ -1,5 +1,6 @@
 package com.noxfl.momiji.woodchipper.messaging.amqp;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noxfl.momiji.woodchipper.model.schema.message.*;
@@ -40,7 +41,9 @@ public abstract class MessageHandler {
     public void handle(String message) throws IOException, URISyntaxException, NoSuchFieldException, ExecutionException, InterruptedException, ParseException {
 
         ObjectMapper objectMapper = new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+                .configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 
         MomijiMessage momijiMessage = objectMapper.readValue(message, MomijiMessage.class);
 
