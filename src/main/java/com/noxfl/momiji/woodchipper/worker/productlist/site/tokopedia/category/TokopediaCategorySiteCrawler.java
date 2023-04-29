@@ -103,7 +103,7 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
     }
 
     @Override
-    protected List<Content> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
+    protected List<Output> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
 
         Job job = momijiMessage.getJob();
 
@@ -120,27 +120,34 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
 
         List<String> productCards = splitProductCards(response, "$.data.CategoryProducts.data[*]");
 
-        List<Content> output = new ArrayList<>();
+        List<Output> outputs = new ArrayList<>();
 
         for(String card : productCards) {
 
-            List<Content> contents = new ArrayList<>();
+            List<Output> contents = new ArrayList<>();
 
-            String url = JsonPath.using(Configuration.defaultConfiguration())
+            String productUrl = JsonPath.using(Configuration.defaultConfiguration())
                     .parse(card)
                     .read("$.url");
 
-            url = UriUtils.clearParameter(url).toString();
+            productUrl = UriUtils.clearParameter(productUrl).toString();
 
-            Content content = copyContent(momijiMessage);
+            Output output = new Output();
 
-            content.setUrl(url);
-            content.setProduct(card);
+            output.setProductUrl(productUrl);
+            output.setRawContent(card);
+            outputs.add(output);
 
-            output.add(content);
+
+//            Content content = copyContent(momijiMessage);
+//
+//            content.setUrl(url);
+//            content.setProduct(card);
+//
+//            output.add(content);
         }
 
-        return output;
+        return outputs;
     }
 
     private int getCategoryId(String categoryIdentifier) throws IOException {

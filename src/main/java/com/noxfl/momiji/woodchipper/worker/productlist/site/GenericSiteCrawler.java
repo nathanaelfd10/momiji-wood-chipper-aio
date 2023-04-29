@@ -1,8 +1,10 @@
 package com.noxfl.momiji.woodchipper.worker.productlist.site;
 
 import com.noxfl.momiji.woodchipper.messaging.amqp.MessageSender;
-import com.noxfl.momiji.woodchipper.model.schema.message.Content;
+import com.noxfl.momiji.woodchipper.model.schema.message.CustomParam;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
+import com.noxfl.momiji.woodchipper.model.schema.message.Output;
+import com.noxfl.momiji.woodchipper.worker.TargetUrlBuilder;
 import com.noxfl.momiji.woodchipper.worker.productlist.SiteCrawler;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,19 +22,22 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         this.messageSender = messageSender;
     }
 
-    private List<Content> jobOutputs = new ArrayList<>();
+    TargetUrlBuilder targetUrlBuilder = new TargetUrlBuilder();
 
-    protected int paginationStart;
+    public GenericSiteCrawler(TargetUrlBuilder targetUrlBuilder) {
+        this.targetUrlBuilder = targetUrlBuilder;
+    }
 
-    protected int page;
-
-    protected String pageUrl;
-
+    private List<Output> jobOutputs = new ArrayList<>();
+    protected int paginationStart = 1; // Default is 1
+    protected int page = paginationStart;
+    protected String targetUrl;
     protected String lastJobId;
 
-    public GenericSiteCrawler() {
-        this.paginationStart = 1; // Default is 1
-        this.page = this.paginationStart;
+    protected String urlPaginationParamKey = "page";
+
+    protected void setUrlPaginationParamKey(String urlPaginationParamKey) {
+        this.urlPaginationParamKey = urlPaginationParamKey;
     }
 
     protected void nextPage() {
@@ -51,18 +56,10 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         this.paginationStart = paginationStart;
     }
 
-    protected abstract List<Content> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException;
-
-    protected Content copyContent(MomijiMessage momijiMessage) {
-        Content content = new Content();
-
-        content.setExtras(momijiMessage.getJob().getContent().getExtras());
-
-        return content;
-    }
+    protected abstract List<Output> fetch(String targetUrl, boolean isSaveOrderOfAppearanceIndex) throws IOException, URISyntaxException;
 
     @Override
-    public List<Content> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
+    public List<Output> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
 
         String currentJobId = momijiMessage.getJob().getJobId();
 
@@ -70,16 +67,20 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         if(lastJobId != null && !lastJobId.equalsIgnoreCase(currentJobId)) {
             jobOutputs = new ArrayList<>();
             this.page = momijiMessage.getJob().getMinPage();
-            this.pageUrl = momijiMessage.getJob().getTargetUrl();
+            this.targetUrl = momijiMessage.getJob().getTargetUrl();
         }
 
-        // Logic here
-        List<Content> outputContents = fetch(momijiMessage);
+        List<CustomParam> customParams = new ArrayList<>();
+        customParams.add(new CustomParam("page", String.valueOf(page)));
 
-        for(Content content : outputContents) {
+        String targetUrl = targetUrlBuilder.build(this.targetUrl, momijiMessage.getJob().getFilter(), customParams);
 
-            momijiMessage.getJob().setContent(content);
+        System.out.println("Crawling from URL: " + targetUrl);
 
+        List<Output> outputs = fetch(targetUrl, momijiMessage.getJob().isSaveOrderOfAppearanceIndex());
+
+        for(Output output : outputs) {
+            momijiMessage.getJob().getContent().setOutput(output);
             messageSender.send(momijiMessage);
         }
 

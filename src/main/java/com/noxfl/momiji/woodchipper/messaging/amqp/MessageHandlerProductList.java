@@ -2,11 +2,13 @@ package com.noxfl.momiji.woodchipper.messaging.amqp;
 
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import com.noxfl.momiji.woodchipper.model.schema.message.SiteContentType;
+import com.noxfl.momiji.woodchipper.worker.productlist.SiteCrawler;
 import com.noxfl.momiji.woodchipper.worker.productlist.SiteCrawlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 public class MessageHandlerProductList extends MessageHandler {
 
@@ -25,7 +27,7 @@ public class MessageHandlerProductList extends MessageHandler {
                     momijiMessage.getJob().getContentType()
             );
 
-            siteCrawlerFactory.getSiteCrawler(pageType).fetchProducts(momijiMessage);
+           siteCrawlerFactory.getSiteCrawler(pageType).fetchProducts(momijiMessage);
     }
 }
 

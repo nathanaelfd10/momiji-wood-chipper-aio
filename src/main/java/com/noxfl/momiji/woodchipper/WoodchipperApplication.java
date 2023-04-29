@@ -7,6 +7,7 @@ import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandlerProductList;
 import com.noxfl.momiji.woodchipper.messaging.cloudpubsub.MessagePublisher;
 import com.noxfl.momiji.woodchipper.messaging.cloudpubsub.impl.MessagePublisherImpl;
 import com.noxfl.momiji.woodchipper.runner.WoodChipperRunner;
+import com.noxfl.momiji.woodchipper.worker.TargetUrlBuilder;
 import com.rabbitmq.client.Command;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,6 +31,11 @@ public class WoodchipperApplication {
 		final String projectId = System.getProperty("projectId");
 		final String topicId = System.getProperty("topicId");
 		return new MessagePublisherImpl(projectId, topicId);
+	}
+
+	@Bean
+	public TargetUrlBuilder bukalapakTargetUrlBuilder() {
+		return  new TargetUrlBuilder("search[Brating_gte]", "")
 	}
 
 	public static void main(String[] args) {

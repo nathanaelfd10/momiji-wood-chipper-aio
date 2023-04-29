@@ -3,8 +3,8 @@
  */
 package com.noxfl.momiji.woodchipper.worker.productlist;
 
-import com.noxfl.momiji.woodchipper.model.schema.message.Content;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
+import com.noxfl.momiji.woodchipper.model.schema.message.Output;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,6 +24,6 @@ public interface SiteCrawler {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public List<Content> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException;
+	public List<Output> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException;
 
 }

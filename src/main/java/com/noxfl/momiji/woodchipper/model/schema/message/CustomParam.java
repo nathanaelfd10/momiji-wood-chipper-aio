@@ -5,15 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class Content {
+public class CustomParam {
 
-    Output output;
-    List<ExtraContent> extraContents;
+    private String key;
+    private String value;
 
 }
