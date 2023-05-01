@@ -3,7 +3,7 @@
  */
 package com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia;
 
-import com.noxfl.momiji.woodchipper.connection.ApiFetcher;
+import com.noxfl.momiji.woodchipper.connection.ApiCaller;
 import com.noxfl.momiji.woodchipper.worker.productlist.site.GenericSiteCrawler;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +21,12 @@ public abstract class TokopediaSiteCrawler extends GenericSiteCrawler {
 
 	public static final int GLOBAL_POLITENESS_TIMEOUT_TOKOPEDIA = 2000;
 
-	protected final ApiFetcher apiFetcher;
+	protected final ApiCaller apiFetcher;
 
 	protected HashMap<String, String> headers = new HashMap<>();
 
 	@Autowired
-	public TokopediaSiteCrawler(ApiFetcher apiFetcher) {
+	public TokopediaSiteCrawler(ApiCaller apiFetcher) {
 		this.apiFetcher = apiFetcher;
 		this.setPaginationStart(1);
 

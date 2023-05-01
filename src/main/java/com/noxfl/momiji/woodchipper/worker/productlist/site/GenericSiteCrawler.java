@@ -24,8 +24,8 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
 
     TargetUrlBuilder targetUrlBuilder = new TargetUrlBuilder();
 
-    public GenericSiteCrawler(TargetUrlBuilder targetUrlBuilder) {
-        this.targetUrlBuilder = targetUrlBuilder;
+    public GenericSiteCrawler() {
+
     }
 
     private List<Output> jobOutputs = new ArrayList<>();
@@ -56,7 +56,7 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         this.paginationStart = paginationStart;
     }
 
-    protected abstract List<Output> fetch(String targetUrl, boolean isSaveOrderOfAppearanceIndex) throws IOException, URISyntaxException;
+    protected abstract List<Output> fetch() throws IOException, URISyntaxException;
 
     @Override
     public List<Output> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
@@ -73,11 +73,14 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         List<CustomParam> customParams = new ArrayList<>();
         customParams.add(new CustomParam("page", String.valueOf(page)));
 
-        String targetUrl = targetUrlBuilder.build(this.targetUrl, momijiMessage.getJob().getFilter(), customParams);
+        String targetUrl = new TargetUrlBuilder(this.targetUrl)
+                .withFilter(momijiMessage.getJob().getFilter())
+                .setPage("page", this.getCurrentPage()) // Default is 'page'
+                .build();
 
         System.out.println("Crawling from URL: " + targetUrl);
 
-        List<Output> outputs = fetch(targetUrl, momijiMessage.getJob().isSaveOrderOfAppearanceIndex());
+        List<Output> outputs = fetch(momijiMessage);
 
         for(Output output : outputs) {
             momijiMessage.getJob().getContent().setOutput(output);
@@ -94,4 +97,5 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         return jobOutputs;
     }
 
+    protected abstract List<Output> fetch(String targetUrl, boolean isSaveOrderOfAppearanceIndex) throws IOException, URISyntaxException;
 }

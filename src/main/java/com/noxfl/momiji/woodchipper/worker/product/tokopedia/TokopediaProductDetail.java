@@ -1,6 +1,6 @@
 package com.noxfl.momiji.woodchipper.worker.product.tokopedia;
 
-import com.noxfl.momiji.woodchipper.connection.ApiFetcher;
+import com.noxfl.momiji.woodchipper.connection.ApiCaller;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import com.noxfl.momiji.woodchipper.worker.product.SiteScraper;
 import org.apache.http.client.utils.URIBuilder;
@@ -17,10 +17,10 @@ public class TokopediaProductDetail implements SiteScraper {
 
     public static final String TOKOPEDIA_GRAPHQL_ENDPOINT = "https://gql.tokopedia.com";
 
-    private ApiFetcher apiFetcher;
+    private ApiCaller apiFetcher;
 
     @Autowired
-    public TokopediaProductDetail(ApiFetcher apiFetcher) {
+    public TokopediaProductDetail(ApiCaller apiFetcher) {
         this.apiFetcher = apiFetcher;
     }
 

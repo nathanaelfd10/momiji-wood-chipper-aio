@@ -53,7 +53,7 @@ public class MessageHandlerExtractor extends MessageHandler {
                 momijiMessage.getJob().getContentType()
         );
 
-        String content = momijiMessage.getJob().getContent().getProduct();
+        String content = momijiMessage.getJob().getContent().getOutput().getRawContent();
 
         HashMap<String, Object> outputFields = siteContentExtractorFactory.getContentExtractor(pageType).extract(content);
 
@@ -63,7 +63,7 @@ public class MessageHandlerExtractor extends MessageHandler {
         }
 
         // Functions for extra fields
-        momijiMessage.getJob().getContent().getExtras().forEach(extra -> {
+        momijiMessage.getJob().getContent().getExtraContents().forEach(extra -> {
             outputFields.put(extra.getName(), extra.getContent());
         });
 

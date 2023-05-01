@@ -3,12 +3,16 @@ package com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.category;
 import com.github.slugify.Slugify;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import com.noxfl.momiji.woodchipper.connection.ApiFetcher;
+import com.noxfl.momiji.woodchipper.connection.ApiCaller;
+import com.noxfl.momiji.woodchipper.connection.ApiCallerBuilder;
+import com.noxfl.momiji.woodchipper.connection.impl.ApiCallerBuilderImpl;
 import com.noxfl.momiji.woodchipper.model.schema.message.*;
 import com.noxfl.momiji.woodchipper.util.UriUtils;
 import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.TokopediaSiteCrawler;
-import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.graphql.schema.CategoryDetailQuery;
-import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.graphql.schema.SearchProductQuery;
+import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.query.builder.TokopediaCategoryQueryBuilder;
+import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.query.builder.TokopediaQueryBuilder;
+import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.query.graphql.schema.CategoryDetailQuery;
+import com.noxfl.momiji.woodchipper.worker.productlist.site.tokopedia.query.graphql.schema.SearchProductQuery;
 import net.minidev.json.JSONStyle;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
@@ -28,7 +32,7 @@ import java.util.stream.Collectors;
 @Component
 public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
 
-    public TokopediaCategorySiteCrawler(ApiFetcher apiFetcher) {
+    public TokopediaCategorySiteCrawler(ApiCaller apiFetcher) {
         super(apiFetcher);
 
     }
@@ -107,7 +111,7 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
 
         Job job = momijiMessage.getJob();
 
-        JSONObject payload = buildPayload(job, this.getCurrentPage());
+//        JSONObject payload = buildPayload(job, this.getCurrentPage());
 
         // Crawl delay
         try {
@@ -116,7 +120,17 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
             throw new RuntimeException(e);
         }
 
-        String response = apiFetcher.fetchPost(payload.toString(), headers, TOKOPEDIA_API_ENDPOINT).toString();
+        TokopediaQueryBuilder tokopediaCategoryQueryBuilder = new TokopediaQueryBuilder();
+        String payload = tokopediaCategoryQueryBuilder
+                .asCategoryPage(job.getTargetUrl(), this.page)
+                .build();
+
+        ApiCallerBuilder apiCallerBuilder = new ApiCallerBuilderImpl(TOKOPEDIA_API_ENDPOINT);
+        String response = apiCallerBuilder
+                .setHeaders(headers)
+                .byPost(payload)
+                .build()
+                .send();
 
         List<String> productCards = splitProductCards(response, "$.data.CategoryProducts.data[*]");
 
@@ -161,7 +175,15 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
         payload.put("operationName", CategoryDetailQuery.OPERATION_NAME);
         payload.put("variables", variables);
         payload.put("query", CategoryDetailQuery.QUERY);
-        String response = apiFetcher.fetchPost(payload.toString(), headers, TOKOPEDIA_API_ENDPOINT).toString();
+
+        String response = new ApiCallerBuilderImpl(TOKOPEDIA_API_ENDPOINT)
+                .setHeaders(headers)
+                .byPost(payload.toString())
+                .build()
+                .send();
+
+//
+//        String response = apiFetcher.fetchPost(payload.toString(), headers, TOKOPEDIA_API_ENDPOINT).toString();
 
         return JsonPath.using(Configuration.defaultConfiguration()).parse(response).read("$.data.CategoryDetailQuery.data.id", Integer.class);
     }
