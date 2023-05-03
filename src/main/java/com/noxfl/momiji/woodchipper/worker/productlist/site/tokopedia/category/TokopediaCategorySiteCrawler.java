@@ -80,16 +80,22 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
 //        return output.startsWith("?") ? output.substring(1, output.length()) : output;
 //    }
 
+    private int calculateStart(int rows, int page) {
+        return (rows * page) + 1;
+    }
+
+
     private JSONObject buildPayload(Job job, int page) throws IOException, URISyntaxException {
 
         String categoryIdentifier = buildCategoryIdentifier(job.getCategory().getUrl());
         int categoryId = getCategoryId(categoryIdentifier);
-        int start = (60 * page) + 1;
+        int rows = 60;
+        int start = calculateStart(rows, page);
 
         String params = String
-                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=60&start=%s&source=directory&device=desktop" +
+                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=%s1 &start=%s&source=directory&device=desktop" +
                         "&page=%s&related=true&st=product&safe_search=false",
-                        page, categoryIdentifier, categoryId, start, page);
+                        page, categoryIdentifier, categoryId, rows, start, page);
 
         JSONObject gqlQueryParams = new JSONObject();
         gqlQueryParams.put("params", params);
@@ -103,7 +109,7 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
     }
 
     @Override
-    protected List<Content> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
+    protected List<Output> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
 
         Job job = momijiMessage.getJob();
 
@@ -120,27 +126,20 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
 
         List<String> productCards = splitProductCards(response, "$.data.CategoryProducts.data[*]");
 
-        List<Content> output = new ArrayList<>();
+        List<Output> outputs = new ArrayList<>();
 
         for(String card : productCards) {
 
-            List<Content> contents = new ArrayList<>();
-
-            String url = JsonPath.using(Configuration.defaultConfiguration())
+            String productUrl = JsonPath.using(Configuration.defaultConfiguration())
                     .parse(card)
                     .read("$.url");
+            productUrl = UriUtils.clearParameter(productUrl).toString();
 
-            url = UriUtils.clearParameter(url).toString();
-
-            Content content = copyContent(momijiMessage);
-
-            content.setUrl(url);
-            content.setProduct(card);
-
-            output.add(content);
+            Output output = new Output(productUrl, card, null);
+            outputs.add(output);
         }
 
-        return output;
+        return outputs;
     }
 
     private int getCategoryId(String categoryIdentifier) throws IOException {

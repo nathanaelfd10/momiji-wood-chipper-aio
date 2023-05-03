@@ -1,8 +1,9 @@
 package com.noxfl.momiji.woodchipper.worker.productlist.site;
 
 import com.noxfl.momiji.woodchipper.messaging.amqp.MessageSender;
-import com.noxfl.momiji.woodchipper.model.schema.message.Content;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
+import com.noxfl.momiji.woodchipper.model.schema.message.Output;
+import com.noxfl.momiji.woodchipper.util.DateTimeUtils;
 import com.noxfl.momiji.woodchipper.worker.productlist.SiteCrawler;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,7 +21,7 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         this.messageSender = messageSender;
     }
 
-    private List<Content> jobOutputs = new ArrayList<>();
+    private List<Output> jobOutputs = new ArrayList<>();
 
     protected int paginationStart;
 
@@ -51,18 +52,10 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
         this.paginationStart = paginationStart;
     }
 
-    protected abstract List<Content> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException;
-
-    protected Content copyContent(MomijiMessage momijiMessage) {
-        Content content = new Content();
-
-        content.setExtras(momijiMessage.getJob().getContent().getExtras());
-
-        return content;
-    }
+    protected abstract List<Output> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException;
 
     @Override
-    public List<Content> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
+    public List<Output> fetchProducts(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
 
         String currentJobId = momijiMessage.getJob().getJobId();
 
@@ -73,13 +66,12 @@ public abstract class GenericSiteCrawler implements SiteCrawler {
             this.pageUrl = momijiMessage.getJob().getTargetUrl();
         }
 
-        // Logic here
-        List<Content> outputContents = fetch(momijiMessage);
+        List<Output> outputContents = fetch(momijiMessage);
 
-        for(Content content : outputContents) {
-
-            momijiMessage.getJob().setContent(content);
-
+        for(Output output : outputContents) {
+            if(output.getTimestamp() == null || output.getTimestamp().isBlank())
+                output.setTimestamp(DateTimeUtils.getCurrentUtcDateTime());
+            momijiMessage.getJob().getContent().setOutput(output);
             messageSender.send(momijiMessage);
         }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noxfl.momiji.woodchipper.messaging.cloudpubsub.MessagePublisher;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import com.noxfl.momiji.woodchipper.model.schema.message.SiteContentType;
+import com.noxfl.momiji.woodchipper.util.DateTimeUtils;
 import com.noxfl.momiji.woodchipper.worker.extractor.SiteContentExtractorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,9 +40,7 @@ public class MessageHandlerExtractor extends MessageHandler {
 
     private String getCurrentUtcDateTime(SimpleDateFormat simpleDateFormat) {
         Date currentUtcTime = Date.from(Instant.now());
-
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
-
         return simpleDateFormat.format(currentUtcTime);
     }
 
@@ -53,18 +52,19 @@ public class MessageHandlerExtractor extends MessageHandler {
                 momijiMessage.getJob().getContentType()
         );
 
-        String content = momijiMessage.getJob().getContent().getProduct();
+        String rawContent = momijiMessage.getJob().getContent().getOutput().getRawContent();
 
-        HashMap<String, Object> outputFields = siteContentExtractorFactory.getContentExtractor(pageType).extract(content);
+        HashMap<String, Object> outputFields = siteContentExtractorFactory.getContentExtractor(pageType).extract(rawContent);
 
-        if(IS_ADD_UTC_TIMESTAMP) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            outputFields.put("timestamp", getCurrentUtcDateTime(sdf));
+        String timestamp = momijiMessage.getJob().getContent().getOutput().getTimestamp();
+        if(timestamp == null || timestamp.isBlank()) {
+            outputFields.put("timestamp", DateTimeUtils.getCurrentUtcDateTime());
+            momijiMessage.getJob().getContent().getOutput().setTimestamp(timestamp);
         }
 
         // Functions for extra fields
-        momijiMessage.getJob().getContent().getExtras().forEach(extra -> {
-            outputFields.put(extra.getName(), extra.getContent());
+        momijiMessage.getJob().getContent().getExtraContents().forEach(extraContent -> {
+            outputFields.put(extraContent.getName(), extraContent.getContent());
         });
 
         String outputMessage = hashMapToJsonString(outputFields);

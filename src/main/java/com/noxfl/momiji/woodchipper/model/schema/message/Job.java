@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -22,9 +20,8 @@ public class Job {
     private int minPage;
     private int maxPage;
     private ContentType contentType;
-    private String splitPath;
-    private boolean scrapeDetail;
-    private List<ContentParsingGuide> contentParsingGuides;
+    private boolean isScrapeDetail;
+    private boolean isSaveOrderOfAppearanceIndex;
     private Content content;
 
 }

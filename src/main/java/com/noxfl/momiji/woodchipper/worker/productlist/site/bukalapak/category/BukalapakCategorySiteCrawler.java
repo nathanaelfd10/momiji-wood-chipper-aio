@@ -1,6 +1,7 @@
 package com.noxfl.momiji.woodchipper.worker.productlist.site.bukalapak.category;
 
 import com.noxfl.momiji.woodchipper.model.schema.message.Content;
+import com.noxfl.momiji.woodchipper.model.schema.message.Output;
 import com.noxfl.momiji.woodchipper.worker.productlist.site.bukalapak.BukalapakSiteCrawler;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import org.apache.http.client.utils.URIBuilder;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 public class BukalapakCategorySiteCrawler extends BukalapakSiteCrawler {
 
     @Override
-    protected List<Content> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
+    protected List<Output> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
         String url = momijiMessage.getJob().getCategory().getUrl();
 
         url = new URIBuilder(url).addParameter("page", String.valueOf(getCurrentPage()))
@@ -32,16 +33,8 @@ public class BukalapakCategorySiteCrawler extends BukalapakSiteCrawler {
         List<Element> elements = document.select(".te-product-card");
 
         return elements.stream().map(element -> {
-
             String productUrl = element.select("div.bl-thumbnail--slider a").attr("href");
-
-            Content content = new Content();
-            content.setExtras(momijiMessage.getJob().getContent().getExtras());
-            content.setUrl(productUrl);
-            content.setProduct(element.toString());
-
-            return content;
-
+            return new Output(productUrl, element.toString(), null);
         }).toList();
 
     }

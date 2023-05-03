@@ -13,8 +13,7 @@ import java.util.List;
 @Setter
 public class Content {
 
-    String url;
-    String product;
-    List<ExtraContent> extras;
+    Output output;
+    List<ExtraContent> extraContents;
 
 }
