@@ -66,7 +66,7 @@ public class TokopediaProductDetail implements SiteScraper {
     @Override
     public String fetchProduct(MomijiMessage momijiMessage) throws NoSuchFieldException, IOException, URISyntaxException {
 
-        String productUrl = momijiMessage.getJob().getContent().getUrl();
+        String productUrl = momijiMessage.getJob().getContent().getOutput().getProductUrl();
 
         JSONObject query = buildQueryHeader(productUrl);
 

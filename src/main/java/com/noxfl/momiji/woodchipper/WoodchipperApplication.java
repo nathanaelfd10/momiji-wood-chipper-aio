@@ -1,18 +1,10 @@
 package com.noxfl.momiji.woodchipper;
 
-import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandler;
-import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandlerExtractor;
-import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandlerProduct;
-import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandlerProductList;
 import com.noxfl.momiji.woodchipper.messaging.cloudpubsub.MessagePublisher;
 import com.noxfl.momiji.woodchipper.messaging.cloudpubsub.impl.MessagePublisherImpl;
-import com.noxfl.momiji.woodchipper.runner.WoodChipperRunner;
-import com.rabbitmq.client.Command;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
 public class WoodchipperApplication {

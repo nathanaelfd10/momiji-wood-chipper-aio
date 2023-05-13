@@ -6,7 +6,6 @@ import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.TopicName;
 import com.noxfl.momiji.woodchipper.messaging.cloudpubsub.MessagePublisher;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

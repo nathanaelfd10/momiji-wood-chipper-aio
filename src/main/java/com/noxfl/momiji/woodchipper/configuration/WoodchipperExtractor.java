@@ -2,7 +2,6 @@ package com.noxfl.momiji.woodchipper.configuration;
 
 import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandler;
 import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandlerExtractor;
-import com.noxfl.momiji.woodchipper.messaging.amqp.MessageHandlerProductList;
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

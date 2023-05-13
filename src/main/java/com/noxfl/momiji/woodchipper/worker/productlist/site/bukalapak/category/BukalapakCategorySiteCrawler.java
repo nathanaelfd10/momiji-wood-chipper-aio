@@ -1,9 +1,8 @@
 package com.noxfl.momiji.woodchipper.worker.productlist.site.bukalapak.category;
 
-import com.noxfl.momiji.woodchipper.model.schema.message.Content;
+import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import com.noxfl.momiji.woodchipper.model.schema.message.Output;
 import com.noxfl.momiji.woodchipper.worker.productlist.site.bukalapak.BukalapakSiteCrawler;
-import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import org.apache.http.client.utils.URIBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,9 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class BukalapakCategorySiteCrawler extends BukalapakSiteCrawler {

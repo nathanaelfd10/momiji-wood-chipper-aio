@@ -1,0 +1,1 @@
+start "Extractor Worker" mvn spring-boot:run -Dspring-boot.run.jvmArguments="-DprojectId=momiji-381514 -DtopicId=product-stream -DGOOGLE_APPLICATION_CREDENTIALS=D:/Kuliah/software-workspaces/personal-workspace/momiji/momiji-dataflow/credential/gcp_service_account_credential.json" -Dspring-boot.run.profiles=extractor

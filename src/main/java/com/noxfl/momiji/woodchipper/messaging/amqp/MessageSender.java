@@ -34,7 +34,7 @@ public class MessageSender {
                 ? queueNameProduct
                 : queueNameExtractor;
 
-        System.out.println("Preparing to send: " + momijiMessage.getJob().getContent().getUrl());
+        System.out.println("Preparing to send: " + momijiMessage.getJob().getContent().getOutput().getProductUrl());
 
         this.send(new JSONObject(momijiMessage).toString(), queueName);
     }

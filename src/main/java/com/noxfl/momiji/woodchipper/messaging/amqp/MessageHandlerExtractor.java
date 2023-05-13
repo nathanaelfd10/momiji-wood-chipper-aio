@@ -3,6 +3,7 @@ package com.noxfl.momiji.woodchipper.messaging.amqp;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noxfl.momiji.woodchipper.messaging.cloudpubsub.MessagePublisher;
+import com.noxfl.momiji.woodchipper.model.schema.message.ExtraContent;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import com.noxfl.momiji.woodchipper.model.schema.message.SiteContentType;
 import com.noxfl.momiji.woodchipper.util.DateTimeUtils;
@@ -11,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
@@ -62,10 +63,15 @@ public class MessageHandlerExtractor extends MessageHandler {
             momijiMessage.getJob().getContent().getOutput().setTimestamp(timestamp);
         }
 
-        // Functions for extra fields
-        momijiMessage.getJob().getContent().getExtraContents().forEach(extraContent -> {
-            outputFields.put(extraContent.getName(), extraContent.getContent());
-        });
+
+        List<ExtraContent> extraContents = momijiMessage.getJob().getContent().getExtraContents();
+
+        if(extraContents != null && extraContents.size() > 0) {
+            // Functions for extra fields
+            momijiMessage.getJob().getContent().getExtraContents().forEach(extraContent -> {
+                outputFields.put(extraContent.getName(), extraContent.getContent());
+            });
+        }
 
         String outputMessage = hashMapToJsonString(outputFields);
 

@@ -37,6 +37,8 @@ public abstract class TokopediaSiteCrawler extends GenericSiteCrawler {
 		headers.put("Accept-Language", "en-US,en;q=0.9,id-ID;q=0.8,id;q=0.7");
 		headers.put("Connection", "keep-alive");
 		headers.put("Origin", "https://www.tokopedia.com");
+		headers.put("X-Device", "desktop");
+		headers.put("X-Source", "tokopedia-lite");
 	}
 
 	/**

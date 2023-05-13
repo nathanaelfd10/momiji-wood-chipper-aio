@@ -93,7 +93,7 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
         int start = calculateStart(rows, page);
 
         String params = String
-                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=%s1 &start=%s&source=directory&device=desktop" +
+                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=%s&start=%s&source=directory&device=desktop" +
                         "&page=%s&related=true&st=product&safe_search=false",
                         page, categoryIdentifier, categoryId, rows, start, page);
 
