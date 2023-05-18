@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,10 +93,26 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
         int rows = 60;
         int start = calculateStart(rows, page);
 
-        String params = String
-                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=%s&start=%s&source=directory&device=desktop" +
-                        "&page=%s&related=true&st=product&safe_search=false",
-                        page, categoryIdentifier, categoryId, rows, start, page);
+//        String params = String
+//                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=%s&start=%s&source=directory&device=desktop" +
+//                        "&page=%s&related=true&st=product&safe_search=false",
+//                        page, categoryIdentifier, categoryId, rows, start, page);
+
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("page", String.valueOf(page));
+        paramsMap.put("ob", "");
+        paramsMap.put("identifier", categoryIdentifier);
+        paramsMap.put("sc", String.valueOf(categoryId));
+        paramsMap.put("user_id", "0");
+        paramsMap.put("rows", String.valueOf(rows));
+        paramsMap.put("start", String.valueOf(start));
+        paramsMap.put("source", "directory");
+        paramsMap.put("device", "desktop");
+        paramsMap.put("related", "true");
+        paramsMap.put("st", "product");
+        paramsMap.put("safe_search", "false");
+
+        String params = buildParams(paramsMap);
 
         JSONObject gqlQueryParams = new JSONObject();
         gqlQueryParams.put("params", params);
@@ -110,9 +127,7 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
 
     @Override
     protected List<Output> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
-
         Job job = momijiMessage.getJob();
-
         JSONObject payload = buildPayload(job, this.getCurrentPage());
 
         // Crawl delay
@@ -125,9 +140,7 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
         String response = apiFetcher.fetchPost(payload.toString(), headers, TOKOPEDIA_API_ENDPOINT).toString();
 
         List<String> productCards = splitProductCards(response, "$.data.CategoryProducts.data[*]");
-
         List<Output> outputs = new ArrayList<>();
-
         for(String card : productCards) {
 
             String productUrl = JsonPath.using(Configuration.defaultConfiguration())
@@ -163,12 +176,10 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
         if(paths.get(0).equalsIgnoreCase("p")) {
             paths.remove(0);
         }
-
         return String.join("_", paths);
     }
 
     private String buildCategoryIdentifier(Category category) {
-
         Slugify slug = Slugify.builder().lowerCase(true).build();
 
         List<String> categoriesAsParams = category.getCategoryBreadcrumb().stream()

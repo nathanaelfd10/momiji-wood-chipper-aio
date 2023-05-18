@@ -10,6 +10,6 @@ spring:
     product-list:
       name: product-list
     product:
-      name: product
+      name: product-detail
     extractor:
       name: extractor

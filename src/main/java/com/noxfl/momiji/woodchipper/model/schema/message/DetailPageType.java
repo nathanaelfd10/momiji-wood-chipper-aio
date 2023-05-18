@@ -4,5 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum DetailPageType {
     @JsonProperty("TOKOPEDIA")
-    TOKOPEDIA
+    TOKOPEDIA,
+    @JsonProperty("BUKALAPAK")
+    BUKALAPAK
 }

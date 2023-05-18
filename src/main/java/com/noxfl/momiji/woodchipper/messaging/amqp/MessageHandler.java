@@ -62,10 +62,10 @@ public abstract class MessageHandler {
 
         momijiMessage.getJob().setJobId(jobIdHash);
 
-        doWork(momijiMessage);
+        process(momijiMessage);
 
     }
 
-    protected abstract void doWork(MomijiMessage momijiMessage) throws IOException, URISyntaxException, NoSuchFieldException, ExecutionException, InterruptedException, ParseException;
+    protected abstract void process(MomijiMessage momijiMessage) throws IOException, URISyntaxException, NoSuchFieldException, ExecutionException, InterruptedException, ParseException;
 
 }

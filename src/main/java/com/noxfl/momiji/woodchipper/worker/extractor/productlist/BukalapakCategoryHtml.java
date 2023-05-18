@@ -1,6 +1,6 @@
 package com.noxfl.momiji.woodchipper.worker.extractor.productlist;
 
-import com.noxfl.momiji.woodchipper.worker.extractor.Extractor;
+import com.noxfl.momiji.woodchipper.worker.extractor.HtmlPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
@@ -8,19 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 
 @Component
-public class BukalapakCategoryHtml implements Extractor {
-
-    private boolean isElementExists(Element element, String cssPath) {
-        return element.select(cssPath).size() > 0;
-    }
-
-    private String getText(Element element, String cssPath) {
-        return isElementExists(element, cssPath) ? element.select(cssPath).text() : null;
-    }
-
-    private String getAttribute(Element element, String cssPath, String attribute) {
-        return isElementExists(element, cssPath) ? element.select(cssPath).attr(attribute) : null;
-    }
+public class BukalapakCategoryHtml extends HtmlPage {
 
     @Override
     public HashMap<String, Object> extract(String content) {

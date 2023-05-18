@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.noxfl.momiji.woodchipper.worker.product;
+package com.noxfl.momiji.woodchipper.worker.productdetail;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

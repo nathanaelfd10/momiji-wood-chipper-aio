@@ -1,4 +1,4 @@
-package com.noxfl.momiji.woodchipper.worker.product;
+package com.noxfl.momiji.woodchipper.worker.productdetail;
 
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 

@@ -19,11 +19,9 @@ public class BukalapakCategorySiteCrawler extends BukalapakSiteCrawler {
     @Override
     protected List<Output> fetch(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
         String url = momijiMessage.getJob().getCategory().getUrl();
-
         url = new URIBuilder(url).addParameter("page", String.valueOf(getCurrentPage()))
                 .build()
                 .toString();
-
         System.out.println("Crawling page: " + url);
 
         Document document = Jsoup.connect(url).get();
@@ -33,7 +31,6 @@ public class BukalapakCategorySiteCrawler extends BukalapakSiteCrawler {
             String productUrl = element.select("div.bl-thumbnail--slider a").attr("href");
             return new Output(productUrl, element.toString(), null);
         }).toList();
-
     }
 
 }

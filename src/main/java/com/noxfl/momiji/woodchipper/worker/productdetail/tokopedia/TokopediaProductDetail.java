@@ -1,8 +1,10 @@
-package com.noxfl.momiji.woodchipper.worker.product.tokopedia;
+package com.noxfl.momiji.woodchipper.worker.productdetail.tokopedia;
 
 import com.noxfl.momiji.woodchipper.connection.ApiFetcher;
+import com.noxfl.momiji.woodchipper.messaging.amqp.MessageSender;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
-import com.noxfl.momiji.woodchipper.worker.product.SiteScraper;
+import com.noxfl.momiji.woodchipper.worker.productdetail.SiteScraper;
+import com.noxfl.momiji.woodchipper.worker.productdetail.generic.GenericProductDetail;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 
 @Component
-public class TokopediaProductDetail implements SiteScraper {
+public class TokopediaProductDetail extends GenericProductDetail implements SiteScraper {
 
     public static final String TOKOPEDIA_GRAPHQL_ENDPOINT = "https://gql.tokopedia.com";
 
@@ -51,7 +53,7 @@ public class TokopediaProductDetail implements SiteScraper {
 
         try {
             url = cleanseUrlFromParameters(url);
-            shopDomain =  getShopFromUrl(url);
+            shopDomain = getShopFromUrl(url);
             productKey = getProductKeyFromUrl(url);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -63,8 +65,20 @@ public class TokopediaProductDetail implements SiteScraper {
 
     }
 
+//    @Override
+//    public String fetchProduct(MomijiMessage momijiMessage) throws NoSuchFieldException, IOException, URISyntaxException {
+//
+//        String productUrl = momijiMessage.getJob().getContent().getOutput().getProductUrl();
+//
+//        if(productUrl.isBlank()) {
+//            throw new NoSuchFieldException("No Product URL found at current Momiji Message!");
+//        }
+//
+//
+//    }
+
     @Override
-    public String fetchProduct(MomijiMessage momijiMessage) throws NoSuchFieldException, IOException, URISyntaxException {
+    protected String fetchRawData(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
 
         String productUrl = momijiMessage.getJob().getContent().getOutput().getProductUrl();
 
@@ -79,8 +93,13 @@ public class TokopediaProductDetail implements SiteScraper {
         headers.put("x-source", "tokopedia-lite");
         headers.put("x-tkpd-akamai", "pdpGetLayout");
         headers.put("x-tkpd-lite-service", "zeus");
-        headers.put("x-version", "40bd9a6"); // Might be constantly updated?
+//        headers.put("x-version", "40bd9a6"); // Might be constantly updated?
 
-        return String.valueOf(apiFetcher.fetchPost(query.toString(), headers,TOKOPEDIA_GRAPHQL_ENDPOINT));
+        JSONObject response = apiFetcher.fetchPost(query.toString(), headers,TOKOPEDIA_GRAPHQL_ENDPOINT);
+
+//        momijiMessage.getJob().getContent().getOutput().setRawContent(response.toString());
+//        messageSender.send(momijiMessage);
+
+        return response.toString();
     }
 }

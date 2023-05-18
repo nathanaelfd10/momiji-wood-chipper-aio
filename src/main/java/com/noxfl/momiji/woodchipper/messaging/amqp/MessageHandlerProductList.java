@@ -18,7 +18,7 @@ public class MessageHandlerProductList extends MessageHandler {
     }
 
     @Override
-    protected void doWork(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
+    protected void process(MomijiMessage momijiMessage) throws IOException, URISyntaxException {
             SiteContentType pageType = getSiteContentType(
                     momijiMessage.getJob().getSite().getName(),
                     momijiMessage.getJob().getPageType(),
