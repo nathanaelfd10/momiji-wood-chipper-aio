@@ -46,7 +46,8 @@ public class MessageHandlerExtractor extends MessageHandler {
     }
 
     @Override
-    protected void process(MomijiMessage momijiMessage) throws IOException, URISyntaxException, NoSuchFieldException, ExecutionException, InterruptedException, ParseException {
+    protected void process(MomijiMessage momijiMessage) throws IOException, URISyntaxException,
+            NoSuchFieldException, ExecutionException, InterruptedException, ParseException {
         SiteContentType pageType = getSiteContentType(
                 momijiMessage.getJob().getSite().getName(),
                 momijiMessage.getJob().getPageType(),
@@ -55,7 +56,8 @@ public class MessageHandlerExtractor extends MessageHandler {
 
         String rawContent = momijiMessage.getJob().getContent().getOutput().getRawContent();
 
-        HashMap<String, Object> outputFields = siteContentExtractorFactory.getContentExtractor(pageType).extract(rawContent);
+        HashMap<String, Object> outputFields = siteContentExtractorFactory
+                .getContentExtractor(pageType).extract(rawContent);
 
         String timestamp = momijiMessage.getJob().getContent().getOutput().getTimestamp();
         if(timestamp == null || timestamp.isBlank()) {

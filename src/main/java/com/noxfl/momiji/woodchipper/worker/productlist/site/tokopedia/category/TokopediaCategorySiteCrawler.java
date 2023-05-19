@@ -93,26 +93,26 @@ public class TokopediaCategorySiteCrawler extends TokopediaSiteCrawler {
         int rows = 60;
         int start = calculateStart(rows, page);
 
-//        String params = String
-//                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=%s&start=%s&source=directory&device=desktop" +
-//                        "&page=%s&related=true&st=product&safe_search=false",
-//                        page, categoryIdentifier, categoryId, rows, start, page);
+        String params = String
+                .format("page=%s&ob=&identifier=%s&sc=%s&user_id=0&rows=%s&start=%s&source=directory&device=desktop" +
+                        "&page=%s&related=true&st=product&safe_search=false",
+                        page, categoryIdentifier, categoryId, rows, start, page);
 
-        HashMap<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("page", String.valueOf(page));
-        paramsMap.put("ob", "");
-        paramsMap.put("identifier", categoryIdentifier);
-        paramsMap.put("sc", String.valueOf(categoryId));
-        paramsMap.put("user_id", "0");
-        paramsMap.put("rows", String.valueOf(rows));
-        paramsMap.put("start", String.valueOf(start));
-        paramsMap.put("source", "directory");
-        paramsMap.put("device", "desktop");
-        paramsMap.put("related", "true");
-        paramsMap.put("st", "product");
-        paramsMap.put("safe_search", "false");
-
-        String params = buildParams(paramsMap);
+//        HashMap<String, String> paramsMap = new HashMap<>();
+//        paramsMap.put("page", String.valueOf(page));
+//        paramsMap.put("ob", "");
+//        paramsMap.put("identifier", categoryIdentifier);
+//        paramsMap.put("sc", String.valueOf(categoryId));
+//        paramsMap.put("user_id", "0");
+//        paramsMap.put("rows", String.valueOf(rows));
+//        paramsMap.put("start", String.valueOf(start));
+//        paramsMap.put("source", "directory");
+//        paramsMap.put("device", "desktop");
+//        paramsMap.put("related", "true");
+//        paramsMap.put("st", "product");
+//        paramsMap.put("safe_search", "false");
+//
+//        String params = buildParams(paramsMap);
 
         JSONObject gqlQueryParams = new JSONObject();
         gqlQueryParams.put("params", params);

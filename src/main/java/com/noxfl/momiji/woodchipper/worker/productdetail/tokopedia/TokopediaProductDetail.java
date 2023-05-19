@@ -1,10 +1,9 @@
 package com.noxfl.momiji.woodchipper.worker.productdetail.tokopedia;
 
 import com.noxfl.momiji.woodchipper.connection.ApiFetcher;
-import com.noxfl.momiji.woodchipper.messaging.amqp.MessageSender;
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
 import com.noxfl.momiji.woodchipper.worker.productdetail.SiteScraper;
-import com.noxfl.momiji.woodchipper.worker.productdetail.generic.GenericProductDetail;
+import com.noxfl.momiji.woodchipper.worker.productdetail.generic.GenericSiteScraper;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 
 @Component
-public class TokopediaProductDetail extends GenericProductDetail implements SiteScraper {
+public class TokopediaProductDetail extends GenericSiteScraper implements SiteScraper {
 
     public static final String TOKOPEDIA_GRAPHQL_ENDPOINT = "https://gql.tokopedia.com";
 
@@ -88,17 +87,15 @@ public class TokopediaProductDetail extends GenericProductDetail implements Site
         headers.put("Content-Type", "application/json");
         headers.put("Accept-Encoding", "gzip, deflate, br");
         headers.put("Accept-Language", "en-US,en;q=0.9,id-ID;q=0.8,id;q=0.7,ja-JP;q=0.6,ja;q=0.5");
-        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36");
+        headers.put("User-Agent", "PostmanRuntime/7.29.2");
         headers.put("x-device", "desktop");
         headers.put("x-source", "tokopedia-lite");
         headers.put("x-tkpd-akamai", "pdpGetLayout");
         headers.put("x-tkpd-lite-service", "zeus");
 //        headers.put("x-version", "40bd9a6"); // Might be constantly updated?
 
-        JSONObject response = apiFetcher.fetchPost(query.toString(), headers,TOKOPEDIA_GRAPHQL_ENDPOINT);
-
-//        momijiMessage.getJob().getContent().getOutput().setRawContent(response.toString());
-//        messageSender.send(momijiMessage);
+        JSONObject response = apiFetcher.fetchPost(query.toString(),
+                headers,TOKOPEDIA_GRAPHQL_ENDPOINT + "/graphql/PDPGetLayoutQuery");
 
         return response.toString();
     }

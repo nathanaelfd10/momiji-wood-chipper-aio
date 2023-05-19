@@ -2,7 +2,7 @@ package com.noxfl.momiji.woodchipper.worker.extractor;
 
 import org.jsoup.nodes.Element;
 
-public abstract class HtmlPage implements Extractor {
+public abstract class HtmlDetailPage implements Extractor {
 
     protected boolean isElementExists(Element element, String cssPath) {
         return element.select(cssPath).size() > 0;

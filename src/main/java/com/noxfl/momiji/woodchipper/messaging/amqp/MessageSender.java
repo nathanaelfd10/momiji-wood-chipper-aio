@@ -1,6 +1,7 @@
 package com.noxfl.momiji.woodchipper.messaging.amqp;
 
 import com.noxfl.momiji.woodchipper.model.schema.message.MomijiMessage;
+import com.noxfl.momiji.woodchipper.worker.WorkerType;
 import org.checkerframework.checker.units.qual.A;
 import org.json.JSONObject;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -17,6 +18,15 @@ import java.util.Arrays;
  */
 @Component
 public class MessageSender {
+
+    private WorkerType toWorkerType(String workerName) {
+        String workerNameFormatted = workerName.replaceAll("-", "_").toUpperCase();
+        return WorkerType.valueOf(workerNameFormatted);
+    }
+
+    private String toWorkerName(WorkerType workerType) {
+        return String.valueOf(workerType).replaceAll("_", "-").toLowerCase();
+    }
 
     @Value("${spring.rabbitmq.queue.product.name}")
     private String queueNameProduct;
@@ -36,16 +46,22 @@ public class MessageSender {
     @Autowired
     private Environment env;
 
-    private boolean isCurrentActiveWorker(String workerName) {
+    private boolean isActiveWorker(String workerName) {
+        return Arrays.stream(env.getActiveProfiles()).anyMatch(profile -> profile.equalsIgnoreCase(workerName));
+    }
+
+    private boolean isActiveWorker(WorkerType workerType) {
+        String workerName = toWorkerName(workerType);
         return Arrays.stream(env.getActiveProfiles()).anyMatch(profile -> profile.equalsIgnoreCase(workerName));
     }
 
     public void send(MomijiMessage momijiMessage) {
         String outputQueueName;
-        if(isCurrentActiveWorker("product-detail"))
-            outputQueueName = "extractor";
+        if(isActiveWorker(WorkerType.PRODUCT_DETAIL))
+            outputQueueName = queueNameExtractor;
         else
             outputQueueName = momijiMessage.getJob().isScrapeDetail() ? queueNameProduct : queueNameExtractor;
+            // Skips directly to extractor queue if !isScrapeDetail
 
         this.send(new JSONObject(momijiMessage).toString(), outputQueueName);
     }

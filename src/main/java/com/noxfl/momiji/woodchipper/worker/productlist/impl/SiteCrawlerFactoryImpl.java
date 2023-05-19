@@ -38,7 +38,8 @@ public class SiteCrawlerFactoryImpl implements SiteCrawlerFactory {
 		switch (siteContentType) {
 			case TOKOPEDIA_CATEGORY_JSON -> { return tokopediaCategorySiteCrawler; }
 			case BUKALAPAK_CATEGORY_HTML -> { return bukalapakCategorySiteCrawler; }
-			default -> throw new IllegalArgumentException("No site crawler for PageType: " + siteContentType);
+			default -> throw
+					new IllegalArgumentException("No site crawler for PageType: " + siteContentType);
 		}
 
 	}
